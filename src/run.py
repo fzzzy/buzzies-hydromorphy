@@ -5,8 +5,8 @@ import time
 
 from selenium import webdriver
 
-loc = "http://localhost:5000/client.html"
-loc2 = "http://localhost:5000/server.html"
+loc = "http://localhost:5000/vat.html?actor=client"
+loc2 = "http://localhost:5000/vat.html?actor=server"
 
 print("client", os.getcwd())
 
@@ -39,7 +39,7 @@ def setup():
     print("--------")
     return driver
 
-def quit(driver):
+def quit(driver=None):
     if driver is not None:
         print("killing driver")
         driver.quit()
