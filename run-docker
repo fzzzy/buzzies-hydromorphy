@@ -1,0 +1,7 @@
+docker build -t buzzies-hydromorphy . && \
+  docker run -p 5001:5000 buzzies-hydromorphy && \
+  docker cp `docker ps -alq`:/usr/src/screenshot.png . && \
+  docker cp `docker ps -alq`:/usr/src/server.log . && \
+  echo "Server log:" && \
+  cat server.log && \
+  open screenshot.png
