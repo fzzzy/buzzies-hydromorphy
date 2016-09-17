@@ -9,7 +9,6 @@ Requires:
 - python3
 - selenium
 - chromedriver
-
 - docker (optional)
 
 Quickstart:
