@@ -3,7 +3,6 @@ import os
 import subprocess
 import time
 
-from selenium.webdriver.common.keys import Keys
 from selenium import webdriver
 
 loc = "http://localhost:5000/client.html"
