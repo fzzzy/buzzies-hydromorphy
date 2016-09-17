@@ -27,4 +27,4 @@ Running under docker:
 Operation
 ---------
 
-The `index.html` file inside the `static/server` directory is loaded in a headless chrome instance on the server. The `index.html` file inside the `static/client` directory is served on port `5000` and can be loaded in a web browser on <http://localhost:5000>.
+The `static/server.html` file is loaded in a headless chrome instance on the server. The `static/client.html` file is served on port `5000` and is loaded in Chrome on <http://localhost:5000>.
