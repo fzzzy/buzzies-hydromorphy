@@ -26,7 +26,7 @@
           e.data.actor !== undefined &&
           e.data.spawn !== undefined
         ) {
-          console.log("VAT SPAWN", e.data);
+          console.log("VAT SPAWN", e.data.actor, e.data.spawn);
           console.log("aid", e.source.actor_id);
           if (e.source.actor_id === undefined) {
             return this.spawn(e.data.spawn, e.data.actor);
@@ -48,10 +48,10 @@
               act2.cast(e.data.pat, e.data.msg);
             } else {
               console.log("NO ACTOR FOUND FOR", e.data.actor);
+              console.log("broadcasting event", e.data.msg);
               socket.emit("named", e.data);
             }
           }
-          console.log("CASSSST");
         }
         console.log("VAT EVENT", e);
       }, false);
@@ -69,7 +69,9 @@
         socket.emit("register", actor_name);
       } else {
         actor_id = this.next_actor_id++;
+        console.log("NEXT id", this.next_actor_id);
       }
+      console.log("creating new actor", actor_id);
       this.actors[actor_id] = new Address(actor, actor_id);
     }
 
@@ -87,11 +89,12 @@
       this.actor_id = actor_id;
       this.buffer = [];
       document.body.appendChild(this.iframe);
+      this.iframe.contentWindow.actor_id = this.actor_id;
+      console.log("iframe contentWindow?", this.iframe.contentWindow);
       this.iframe.addEventListener("load", () => {
         const buffer = this.buffer;
         delete this.buffer;
 
-        this.iframe.contentWindow.actor_id = this.actor_id;
         console.log("load set actor id", this.iframe.contentWindow.actor_id, this.actor_id);
 
         for (const [pat, msg] of buffer) {
@@ -142,6 +145,7 @@
     }
   }
 
+  console.log("QUERY SPAWN", actor, query.name);
   vat.spawn(actor, query.name);
 
 })();
