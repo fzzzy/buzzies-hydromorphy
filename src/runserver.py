@@ -1,4 +1,5 @@
 
+import json
 import os
 import signal
 import sys
@@ -55,6 +56,17 @@ def send_favicon():
 def handle_msg(message):
     print("message", message)
     socketio.emit("msg", "echo " + message)
+
+@socketio.on("register")
+def handle_register(message):
+    print("JOIN ROOM", message)
+    flask_socketio.join_room(message)
+    print("register", message)
+
+@socketio.on("named")
+def handle_named(message):
+    flask_socketio.emit("named", message, room=message["actor"])
+    print("named", message["actor"])
 
 def serve():
     print("Server listening on 5000")

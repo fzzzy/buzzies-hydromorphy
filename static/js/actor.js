@@ -21,12 +21,12 @@ const {spawn, find} = (function () {
     console.log("ACTOR MESSAGe", e);
   }, false);
 
-  class RemoteAddress {
-    constructor(actor_url) {
+  class VatAddress {
+    constructor(actor_id, actor_name) {
       this.next_msg_id = 1;
+      this.actor_id = actor_id;
+      this.actor_name = actor_name;
       this.outstanding_calls = new Map();
-      this.actor_id = next_actor_id++;
-      parent.postMessage({spawn: actor_url, actor: this.actor_id}, window.location.origin);
     }
 
     cast(pat, msg) {
@@ -68,14 +68,18 @@ const {spawn, find} = (function () {
   script.src = `actors/${actor}.js`;
   document.body.appendChild(script);
 
-  return {spawn: function spawn(actor_url) {
-    return new RemoteAddress(actor_url);
-  }, find: function find(actor_id) {
-    return new Promise((resolve, reject) => {
-      if (outstanding_finds[actor_id] === undefined) {
-        outstanding_finds[actor_id] = [];
-      }
-      outstanding_finds[actor_id].push([resolve, reject]);
-    });
-  }};
+  return new class {
+    spawn(actor_url, actor_name) {
+      const actor_id = next_actor_id++;
+      parent.postMessage({
+        spawn: actor_url,
+        actor: actor_name || actor_id
+      }, window.location.origin);
+      return new VatAddress(actor_id, actor_name);
+    }
+
+    find(actor_name) {
+      return new VatAddress(actor_name);
+    }
+  }
 })();

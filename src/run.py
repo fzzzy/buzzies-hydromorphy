@@ -6,7 +6,7 @@ import time
 from selenium import webdriver
 
 loc = "http://localhost:5000/vat.html?actor=client"
-loc2 = "http://localhost:5000/vat.html?actor=server"
+loc2 = "http://localhost:5000/vat.html?actor=server&name=server"
 
 print("client", os.getcwd())
 

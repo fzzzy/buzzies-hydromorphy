@@ -1,5 +1,19 @@
 
 (function () {
+  const socket = io();
+  socket.on("msg", (msg) => {
+    console.log("msg", msg);
+  });
+
+  socket.on("named", (msg) => {
+    const target = vat.actors[msg.actor];
+    if (target !== undefined) {
+      target.cast(msg.pat, msg.msg);
+    } else {
+      console.warn("Ignored named message with unknown name", msg, vat.actors);
+    }
+  })
+
   class Vat {
     constructor() {
       this.actors = new Map();
@@ -14,7 +28,11 @@
         ) {
           console.log("VAT SPAWN", e.data);
           console.log("aid", e.source.actor_id);
-          return this.spawn(e.data.spawn, `${e.source.actor_id}:${e.data.actor}`);
+          if (e.source.actor_id === undefined) {
+            return this.spawn(e.data.spawn, e.data.actor);
+          } else {
+            return this.spawn(e.data.spawn, `${e.source.actor_id}:${e.data.actor}`);
+          }
         } else if (Object.getOwnPropertyNames(e.data).length === 3 &&
           e.data.actor !== undefined &&
           e.data.pat !== undefined &&
@@ -24,6 +42,8 @@
           if (act !== undefined) {
             act.cast(e.data.pat, e.data.msg);
           } else {
+            console.log("NO ACTOR FOUND FOR", e.data.actor);
+            socket.emit("named", e.data);
             // TODO send message to socket.io here
           }
           console.log("CASSSST");
@@ -34,11 +54,14 @@
 
     spawn(actor, actor_name) {
       let actor_id;
-      if (actor_name !== undefined) {
+      if (typeof actor_name === "number") {
+
+      } else if (actor_name !== undefined) {
         if (this.actors[actor_name] !== undefined) {
           throw new Error("Name already in use");
         }
         actor_id = actor_name;
+        socket.emit("register", actor_name);
       } else {
         actor_id = this.next_actor_id++;
       }
@@ -106,13 +129,14 @@
     query[decodeURIComponent(b[0])] = decodeURIComponent(b[1] || "");
   }
   console.log("QUERY", query);
-  let actor = "hello";
+  let actor = "dead";
   if (query.actor !== undefined) {
     actor = query.actor;
     if (actor.indexOf("/") !== -1 || actor.indexOf(".") !== -1) {
       throw new Error("Invalid actor name:", actor);
     }
   }
-  vat.spawn(actor);
+
+  vat.spawn(actor, query.name);
 
 })();
