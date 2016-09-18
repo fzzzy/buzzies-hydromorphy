@@ -42,9 +42,14 @@
           if (act !== undefined) {
             act.cast(e.data.pat, e.data.msg);
           } else {
-            console.log("NO ACTOR FOUND FOR", e.data.actor);
-            socket.emit("named", e.data);
-            // TODO send message to socket.io here
+            const act2 = this.find(e.data.actor);
+            if (act2 !== undefined) {
+              console.log("LOCAL ACTOR FOUNDfor", e.data.actor);
+              act2.cast(e.data.pat, e.data.msg);
+            } else {
+              console.log("NO ACTOR FOUND FOR", e.data.actor);
+              socket.emit("named", e.data);
+            }
           }
           console.log("CASSSST");
         }
