@@ -7,3 +7,8 @@ document.body.appendChild(el);
 const server = find("server");
 
 server.cast("named", {"named": "cast"});
+
+recv("test").then(([pat, msg]) => {
+  console.log("GOT testMESSG", pat, msg);
+  msg.from.cast("response", "it works!");
+});

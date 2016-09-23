@@ -62,7 +62,7 @@
       if (typeof actor_name === "number") {
 
       } else if (actor_name !== undefined) {
-        if (this.actors[actor_name] !== undefined) {
+        if (this.actors.get(actor_name) !== undefined) {
           throw new Error("Name already in use");
         }
         actor_id = actor_name;
@@ -72,11 +72,11 @@
         console.log("NEXT id", this.next_actor_id);
       }
       console.log("creating new actor", actor_id);
-      this.actors[actor_id] = new Address(actor, actor_id);
+      this.actors.set(actor_id, new Address(actor, actor_id));
     }
 
     find(actor_name) {
-      return this.actors[actor_name];
+      return this.actors.get(actor_name);
     }
   }
 
@@ -90,12 +90,9 @@
       this.buffer = [];
       document.body.appendChild(this.iframe);
       this.iframe.contentWindow.actor_id = this.actor_id;
-      console.log("iframe contentWindow?", this.iframe.contentWindow);
       this.iframe.addEventListener("load", () => {
         const buffer = this.buffer;
         delete this.buffer;
-
-        console.log("load set actor id", this.iframe.contentWindow.actor_id, this.actor_id);
 
         for (const [pat, msg] of buffer) {
           this.cast(pat, msg);

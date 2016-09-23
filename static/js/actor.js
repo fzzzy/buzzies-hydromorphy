@@ -1,5 +1,15 @@
 
-const {spawn, find} = (function () {
+const {spawn, find, address, recv} = (function () {
+  let reviver = (k, v) => {
+    console.log("revive", k, v);
+    if (k === "from" && typeof v === "string" && v.startsWith("####address:")) {
+      let addr = v.split(":");
+      addr.shift();
+      return new VatAddress(addr.join(":"));
+    }
+    return v;
+  };
+
   let mailbox = new Map();
   let next_actor_id = 1;
   console.log("hello from the actor");
@@ -9,14 +19,22 @@ const {spawn, find} = (function () {
       e.data.pat !== undefined &&
       e.data.msg !== undefined
     ) {
-      if (mailbox[e.data.pat] === undefined) {
-        mailbox[e.data.pat] = [];
+      let match = mailbox.get(e.data.pat);
+      if (match === undefined) {
+        mailbox.set(e.data.pat, []);
+      } else if (match instanceof Array) {
+        console.log("MAILBOX GET", e.data.pat, mailbox.get(e.data.pat));
+        match.push(e.data.msg);
+      } else if (match instanceof Object) {
+        match.resolve([e.data.pat, JSON.parse(e.data.msg, reviver)]);
+        mailbox.delete(e.data.pat);
+        console.log("OBJ");
       }
-      mailbox[e.data.pat].push(e.data.msg);
       console.log("CASTASDFASDFASDFASDFASDFEEEEEEE", e.data.pat, e.data.msg);
       let element = document.createElement("div");
       element.textContent = e.data.pat + ":" + e.data.msg;
       document.body.appendChild(element);
+      console.log("PARSESD", JSON.parse(e.data.msg, reviver));
     }
     console.log("ACTOR MESSAGe", e);
   }, false);
@@ -45,7 +63,7 @@ const {spawn, find} = (function () {
     }
 
     toJSON() {
-      return `####address:${this.actor_id}`;
+      return `####address:${window.actor_id}:${this.actor_id}`;
     }
   }
 
@@ -80,6 +98,26 @@ const {spawn, find} = (function () {
 
     find(actor_name) {
       return new VatAddress(actor_name);
+    }
+
+    address() {
+      return new VatAddress(window.actor_id);
+    }
+
+    recv(pattern) {
+      return new Promise((resolve, reject) => {
+        let matches = mailbox.get(pattern);
+        if (matches instanceof Array) {
+          console.log("it is an array", pattern);
+          resolve(matches.shift());
+          if (matches.length === 0) {
+            mailbox.delete(pattern);
+          }
+        } else {
+          console.log("it is not an array", pattern);
+          mailbox.set(pattern, {resolve, reject});
+        }
+      });
     }
   }
 })();

@@ -5,4 +5,4 @@ el.textContent = "Client";
 document.body.appendChild(el);
 
 const child = spawn("child");
-child.cast("test", {message: "hello whirled"});
+child.cast("test", {message: "hello whirled", from: address()});
