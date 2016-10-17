@@ -88,6 +88,8 @@
       this.next_msg_id = 1;
       this.outstanding_calls = new Map();
       this.iframe = document.createElement("iframe");
+      this.iframe.setAttribute("width", "512");
+      this.iframe.setAttribute("height", "384");
       this.iframe.src = `actor.html?actor=${encodeURIComponent(actor)}`;
       this.actor_id = actor_id;
       this.buffer = [];

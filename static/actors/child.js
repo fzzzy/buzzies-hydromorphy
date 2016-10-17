@@ -6,9 +6,9 @@ document.body.appendChild(el);
 
 const server = find("server");
 
-server.cast("named", {"named": "cast"});
+server.cast("named", {"named": "cast", from: address()});
 
 recv("test").then(([pat, msg]) => {
   console.log("GOT testMESSG", pat, msg);
-  msg.from.cast("response", "it works!");
+  msg.from.cast("response", {msg: "it works!", from: address()});
 });
