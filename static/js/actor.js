@@ -40,10 +40,9 @@ const {spawn, find, address, recv} = (function () {
   }, false);
 
   class VatAddress {
-    constructor(actor_id, actor_name) {
-      this.next_msg_id = 1;
+    constructor(actor_id) {
       this.actor_id = actor_id;
-      this.actor_name = actor_name;
+      this.next_msg_id = 1;
       this.outstanding_calls = new Map();
     }
 
@@ -63,7 +62,7 @@ const {spawn, find, address, recv} = (function () {
     }
 
     toJSON() {
-      return `####address:${window.actor_id}:${this.actor_id}`;
+      return `####address:${this.actor_id}`;
     }
   }
 
@@ -88,12 +87,15 @@ const {spawn, find, address, recv} = (function () {
 
   return new class {
     spawn(actor_url, actor_name) {
-      const actor_id = next_actor_id++;
+      const actor_id = `actorid${next_actor_id++}`;
+      if (actor_name !== undefined) {
+        actor_id = `${actor_id}:actorname${actor_name}`;
+      }
       parent.postMessage({
         spawn: actor_url,
-        actor: actor_name || actor_id
+        actor: actor_id
       }, window.location.origin);
-      return new VatAddress(actor_id, actor_name);
+      return new VatAddress(actor_id);
     }
 
     find(actor_name) {

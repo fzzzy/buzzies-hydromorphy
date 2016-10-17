@@ -48,6 +48,7 @@
               act2.cast(e.data.pat, e.data.msg);
             } else {
               console.log("NO ACTOR FOUND FOR", e.data.actor);
+              console.log("THIS ACTORS", this.actors);
               console.log("broadcasting event", e.data.msg);
               socket.emit("named", e.data);
             }
@@ -62,18 +63,19 @@
       if (typeof actor_name === "number") {
         console.error("IT IS A NUMBER", actor_name);
       } else if (actor_name !== undefined) {
+        console.log("actor name", actor_name, typeof actor_name);
         if (this.actors.get(actor_name) !== undefined) {
           throw new Error("Name already in use");
         }
         actor_id = actor_name;
-        socket.emit("register", actor_name);
       } else {
         actor_id = this.next_actor_id++;
         console.log("NEXT id", this.next_actor_id);
       }
+      socket.emit("register", actor_id);
       console.log("creating new actor", actor_id);
       console.log(new Error().stack);
-      this.actors.set(actor_id, new Address(actor, actor_id));
+      this.actors.set(`${actor_id}`, new Address(actor, actor_id));
     }
 
     find(actor_name) {
