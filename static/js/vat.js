@@ -6,7 +6,7 @@
   });
 
   socket.on("named", (msg) => {
-    const target = vat.actors[msg.actor];
+    const target = vat.actors.get(msg.actor);
     if (target !== undefined) {
       target.cast(msg.pat, msg.msg);
     } else {
@@ -60,7 +60,7 @@
     spawn(actor, actor_name) {
       let actor_id;
       if (typeof actor_name === "number") {
-
+        console.error("IT IS A NUMBER", actor_name);
       } else if (actor_name !== undefined) {
         if (this.actors.get(actor_name) !== undefined) {
           throw new Error("Name already in use");
@@ -72,6 +72,7 @@
         console.log("NEXT id", this.next_actor_id);
       }
       console.log("creating new actor", actor_id);
+      console.log(new Error().stack);
       this.actors.set(actor_id, new Address(actor, actor_id));
     }
 
