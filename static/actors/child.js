@@ -1,11 +1,16 @@
-/* globals Actors  */
+/* globals Actors, React, ReactDOM  */
+
+
+class Test extends React.Component {
+  render() {
+    return <h1>Child</h1>;
+  }
+}
 
 async function main() {
   console.log("HELO child");
 
-  const el = document.createElement("h1");
-  el.textContent = "Child";
-  document.body.appendChild(el);
+  ReactDOM.render(<Test />, document.getElementById("root"));
 
   const server = Actors.find("server");
 

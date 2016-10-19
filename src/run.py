@@ -17,7 +17,25 @@ def retry_until(until, retries=1000):
             r += 1
         time.sleep(0.1)
 
+def bundle(jsfile):
+    filedir = os.path.dirname(jsfile)
+    filename = os.path.basename(jsfile)
+    outname = os.path.join("static", "build", filename)
+    if os.path.exists(outname):
+        os.remove(outname)
+
+    print("ASDF", jsfile, outname)
+    subprocess.call("watchify {} -o {} -v &".format(jsfile, outname), shell=True)
+    retry_until(lambda: os.path.exists(jsfile))
+
 def setup():
+    subprocess.call("npm install", shell=True)
+    if not os.path.exists("static/build"):
+        os.mkdir("static/build")
+    bundle("static/js/actor.js")
+    bundle("static/js/vat.js")
+    subprocess.call("babel --presets react --watch static/actors --out-dir static/build &", shell=True)
+
     subprocess.call("python3 runserver.py &", shell=True)
 
     retry_until(lambda: os.path.exists("server.pid"))
@@ -55,7 +73,7 @@ def quit(driver=None):
 def runforever():
     """Keep running as long as the server is alive.
     """
-    print("waiting for server to die")
+    print("waiting for server to die (press control-c to exit)")
     try:
         retry_until(lambda: not os.path.exists("server.pid"), 0)
     except KeyboardInterrupt:

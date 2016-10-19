@@ -1,6 +1,7 @@
 
 (function () {
-  const socket = io();
+  const client = require("socket.io-client");
+  const socket = client();
   socket.on("msg", (msg) => {
     console.log("msg", msg);
   });

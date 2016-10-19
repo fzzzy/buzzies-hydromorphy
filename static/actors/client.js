@@ -1,4 +1,4 @@
-/* globals Actors  */
+/* globals Actors, React, ReactDOM  */
 
 async function main() {
   console.log("HELO client");

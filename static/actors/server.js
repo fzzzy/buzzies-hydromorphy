@@ -1,5 +1,5 @@
 
-/* globals Actors  */
+/* globals Actors, React, ReactDOM  */
 
 async function main() {
   const el = document.createElement("h1");

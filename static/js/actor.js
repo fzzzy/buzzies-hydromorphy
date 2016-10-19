@@ -82,7 +82,7 @@ const Actors = (function () {
   }
 
   const script = document.createElement("script");
-  script.src = `actors/${actor}.js`;
+  script.src = `build/${actor}.js`;
   document.body.appendChild(script);
 
   return new class Actors {
@@ -123,3 +123,5 @@ const Actors = (function () {
     }
   }
 })();
+
+window.Actors = Actors;
