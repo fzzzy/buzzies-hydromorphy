@@ -1,14 +1,19 @@
-console.log("HELO child");
+/* globals address, find, recv, spawn  */
 
-const el = document.createElement("h1");
-el.textContent = "Child";
-document.body.appendChild(el);
+async function main() {
+  console.log("HELO child");
 
-const server = find("server");
+  const el = document.createElement("h1");
+  el.textContent = "Child";
+  document.body.appendChild(el);
 
-server.cast("named", {"named": "cast", from: address()});
+  const server = find("server");
 
-recv("test").then(([pat, msg]) => {
+  server.cast("named", {"named": "cast", from: address()});
+
+  let [pat, msg] = await recv("test");
   console.log("GOT testMESSG", pat, msg);
   msg.from.cast("response", {msg: "it works!", from: address()});
-});
+}
+
+main();

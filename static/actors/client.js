@@ -1,13 +1,18 @@
-console.log("HELO client");
+/* globals address, find, recv, spawn  */
 
-const el = document.createElement("h1");
-el.textContent = "Client";
-document.body.appendChild(el);
+async function main() {
+  console.log("HELO client");
 
-const child = spawn("child");
-child.cast("test", {message: "hello whirled", from: address()});
+  const el = document.createElement("h1");
+  el.textContent = "Client";
+  document.body.appendChild(el);
 
-recv("response").then(([pat, msg]) => {
+  const child = spawn("child");
+  child.cast("test", {message: "hello whirled", from: address()});
+
+  let [pat, msg] = await recv("response");
   console.log("RESPONSE", pat, msg);
   msg.from.cast("responseresponse", {msg: "ha!"});
-});
+}
+
+main();
