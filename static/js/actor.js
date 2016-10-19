@@ -1,5 +1,5 @@
 
-const {spawn, find, address, recv} = (function () {
+const Actors = (function () {
   let reviver = (k, v) => {
     console.log("revive", k, v);
     if (k === "from" && typeof v === "string" && v.startsWith("####address:")) {
@@ -85,7 +85,7 @@ const {spawn, find, address, recv} = (function () {
   script.src = `actors/${actor}.js`;
   document.body.appendChild(script);
 
-  return new class {
+  return new class Actors {
     spawn(actor_url, actor_name) {
       const actor_id = `actorid${next_actor_id++}`;
       if (actor_name !== undefined) {

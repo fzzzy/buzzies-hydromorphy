@@ -1,4 +1,4 @@
-/* globals address, find, recv, spawn  */
+/* globals Actors  */
 
 async function main() {
   console.log("HELO client");
@@ -7,10 +7,10 @@ async function main() {
   el.textContent = "Client";
   document.body.appendChild(el);
 
-  const child = spawn("child");
-  child.cast("test", {message: "hello whirled", from: address()});
+  const child = Actors.spawn("child");
+  child.cast("test", {message: "hello whirled", from: Actors.address()});
 
-  let [pat, msg] = await recv("response");
+  let [pat, msg] = await Actors.recv("response");
   console.log("RESPONSE", pat, msg);
   msg.from.cast("responseresponse", {msg: "ha!"});
 }

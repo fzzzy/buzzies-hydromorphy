@@ -1,4 +1,4 @@
-/* globals address, find, recv, spawn  */
+/* globals Actors  */
 
 async function main() {
   console.log("HELO child");
@@ -7,13 +7,13 @@ async function main() {
   el.textContent = "Child";
   document.body.appendChild(el);
 
-  const server = find("server");
+  const server = Actors.find("server");
 
-  server.cast("named", {"named": "cast", from: address()});
+  server.cast("named", {"named": "cast", from: Actors.address()});
 
-  let [pat, msg] = await recv("test");
+  let [pat, msg] = await Actors.recv("test");
   console.log("GOT testMESSG", pat, msg);
-  msg.from.cast("response", {msg: "it works!", from: address()});
+  msg.from.cast("response", {msg: "it works!", from: Actors.address()});
 }
 
 main();
