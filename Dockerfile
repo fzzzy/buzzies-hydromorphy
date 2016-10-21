@@ -15,8 +15,9 @@ RUN curl -SLO "https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION
 
 WORKDIR /usr/src
 
-ADD src /usr/src/
+ADD actors /usr/src/actors/
+ADD build /usr/src/build/
+ADD src /usr/src/src/
 ADD package.json /usr/src/
-ADD static/* static/
 
 CMD npm run start
