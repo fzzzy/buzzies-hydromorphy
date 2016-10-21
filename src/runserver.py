@@ -35,7 +35,7 @@ with open("server.pid", "w") as pid:
     pid.write(str(os.getpid()))
 print("wrote pid")
 
-app = flask.Flask(__name__, static_folder="../build")
+app = flask.Flask(__name__, static_folder=os.path.realpath("build"))
 socketio = flask_socketio.SocketIO(app)
 
 @app.route("/<path:path>")
