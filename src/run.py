@@ -32,10 +32,10 @@ def setup():
     if not os.path.exists("build"):
         os.mkdir("build")
 
-    subprocess.call("cp static/*.html static/*.js build/", shell=True)
-    bundle("static/js/actor.js")
-    bundle("static/js/vat.js")
-    subprocess.call("babel --presets react --watch static/actors --out-dir build &", shell=True)
+    subprocess.call("cp src/*.html src/*.min.js build/", shell=True)
+    bundle("src/actor.js")
+    bundle("src/vat.js")
+    subprocess.call("babel --presets react --watch actors --out-dir build/actors &", shell=True)
 
     subprocess.call("python3 src/runserver.py &", shell=True)
 

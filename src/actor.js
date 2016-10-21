@@ -82,7 +82,7 @@ const Actors = (function () {
   }
 
   const script = document.createElement("script");
-  script.src = `build/${actor}.js`;
+  script.src = `build/actors/${actor}.js`;
   document.body.appendChild(script);
 
   return new class Actors {
