@@ -35,18 +35,18 @@ with open("server.pid", "w") as pid:
     pid.write(str(os.getpid()))
 print("wrote pid")
 
-app = flask.Flask(__name__)
+app = flask.Flask(__name__, static_folder="../build")
 socketio = flask_socketio.SocketIO(app)
 
 @app.route("/<path:path>")
 def send_static(path):
-    print("send static", path)
-    return flask.send_from_directory("static", path)
+    print("send static", app.static_folder, path)
+    return flask.send_from_directory(app.static_folder, path)
 
 @app.route("/")
 def send_home():
     print("send static index.html")
-    return flask.send_from_directory("static", "index.html")
+    return flask.send_from_directory(app.static_folder, "index.html")
 
 @app.route("/favicon.ico")
 def send_favicon():

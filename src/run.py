@@ -5,8 +5,8 @@ import time
 
 from selenium import webdriver
 
-loc = "http://localhost:5000/vat.html?actor=client"
-loc2 = "http://localhost:5000/vat.html?actor=server&name=server"
+client_address = "http://localhost:5000/vat.html?actor=client"
+server_address = "http://localhost:5000/vat.html?actor=server&name=server"
 
 print("client", os.getcwd())
 
@@ -20,7 +20,7 @@ def retry_until(until, retries=1000):
 def bundle(jsfile):
     filedir = os.path.dirname(jsfile)
     filename = os.path.basename(jsfile)
-    outname = os.path.join("static", "build", filename)
+    outname = os.path.join("build", filename)
     if os.path.exists(outname):
         os.remove(outname)
 
@@ -29,14 +29,15 @@ def bundle(jsfile):
     retry_until(lambda: os.path.exists(jsfile))
 
 def setup():
-    subprocess.call("npm install", shell=True)
-    if not os.path.exists("static/build"):
-        os.mkdir("static/build")
+    if not os.path.exists("build"):
+        os.mkdir("build")
+
+    subprocess.call("cp static/*.html static/*.js build/", shell=True)
     bundle("static/js/actor.js")
     bundle("static/js/vat.js")
-    subprocess.call("babel --presets react --watch static/actors --out-dir static/build &", shell=True)
+    subprocess.call("babel --presets react --watch static/actors --out-dir build &", shell=True)
 
-    subprocess.call("python3 runserver.py &", shell=True)
+    subprocess.call("python3 src/runserver.py &", shell=True)
 
     retry_until(lambda: os.path.exists("server.pid"))
     print("Server started, running driver")
@@ -44,11 +45,11 @@ def setup():
     options = webdriver.ChromeOptions()
     options.add_argument("--js-flags=--harmony")
     driver = webdriver.Chrome(chrome_options=options)
-    scr = "window.open('" + loc2 + "')"
+    scr = "window.open('" + server_address + "')"
     print("scr", scr)
     driver.execute_script(scr)
     time.sleep(0.5)
-    driver.get(loc)
+    driver.get(client_address)
     driver.save_screenshot("screenshot.png")
 
     print("Loaded:", repr(driver.title), driver.current_url)

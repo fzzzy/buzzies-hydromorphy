@@ -5,8 +5,9 @@
   "description": "An actor system and interactive programming environment based on iframes",
   "license": "MIT",
   "scripts": {
-    "start": "pip3 install selenium eventlet flask flask_socketio && npm install && python3 src/run.py",
-    "clean": "rm -rf node_modules static/build"
+    "install_deps": "npm install && pip3 install selenium eventlet flask flask_socketio",
+    "start": "if [ ! -d \"node_modules\" ]; then npm run install_deps; fi && python3 src/run.py",
+    "clean": "rm -rf node_modules build"
   },
   "dependencies": {
     "react": "15.3.2",
