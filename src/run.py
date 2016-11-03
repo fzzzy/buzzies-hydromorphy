@@ -17,29 +17,15 @@ def retry_until(until, retries=1000):
             r += 1
         time.sleep(0.1)
 
-def bundle(jsfile):
-    filedir = os.path.dirname(jsfile)
-    filename = os.path.basename(jsfile)
-    outname = os.path.join("build", filename)
-    if os.path.exists(outname):
-        os.remove(outname)
-
-    print("ASDF", jsfile, outname)
-    subprocess.call("watchify {} -o {} -v &".format(jsfile, outname), shell=True)
-    retry_until(lambda: os.path.exists(jsfile))
-
 def setup():
     if not os.path.exists("build"):
         os.mkdir("build")
 
-    subprocess.call("cp src/*.html src/*.min.js src/*.py build/", shell=True)
-    subprocess.call(
-        "babel --presets react --watch actors --out-dir build/actors &",
-        shell=True)
+    subprocess.call("webpack", shell=True)
+    subprocess.call("cp src/*.html src/*.py build/", shell=True)
 
     subprocess.call("python3 src/runserver.py &", shell=True)
     retry_until(lambda: os.path.exists("server.pid"))
-
     print("Server started, running driver")
 
     options = webdriver.ChromeOptions()

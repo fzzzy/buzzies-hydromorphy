@@ -4,3 +4,4 @@ screenshot.png
 server.log
 server.pid
 build
+npm-debug.log

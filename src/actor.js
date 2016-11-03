@@ -77,7 +77,7 @@ const Actors = (function () {
 
   return new class Actors {
     spawn(actor_url, actor_name) {
-      const actor_id = `actorid${next_actor_id++}`;
+      let actor_id = `actorid${next_actor_id++}`;
       if (actor_name !== undefined) {
         actor_id = `${actor_id}:actorname${actor_name}`;
       }

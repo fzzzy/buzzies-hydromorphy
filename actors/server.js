@@ -1,5 +1,7 @@
+/* globals Actors  */
 
-/* globals Actors, React, ReactDOM  */
+import React from 'react';
+import ReactDOM from 'react-dom';
 
 async function main() {
   const el = document.createElement("h1");
