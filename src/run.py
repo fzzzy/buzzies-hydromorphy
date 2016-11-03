@@ -33,8 +33,6 @@ def setup():
         os.mkdir("build")
 
     subprocess.call("cp src/*.html src/*.min.js src/*.py build/", shell=True)
-    bundle("src/actor.js")
-    bundle("src/vat.js")
     subprocess.call(
         "babel --presets react --watch actors --out-dir build/actors &",
         shell=True)
