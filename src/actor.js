@@ -1,7 +1,6 @@
 
 const Actors = (function () {
   let reviver = (k, v) => {
-    console.log("revive", k, v);
     if (k === "from" && typeof v === "string" && v.startsWith("####address:")) {
       let addr = v.split(":");
       addr.shift();
@@ -12,31 +11,23 @@ const Actors = (function () {
 
   let mailbox = new Map();
   let next_actor_id = 1;
-  console.log("hello from the actor");
 
   window.addEventListener("message", (e) => {
     if (Object.getOwnPropertyNames(e.data).length === 2 &&
       e.data.pat !== undefined &&
       e.data.msg !== undefined
     ) {
+      console.log("cast", e.data.pat, e.data.msg)
       let match = mailbox.get(e.data.pat);
       if (match === undefined) {
         mailbox.set(e.data.pat, []);
       } else if (match instanceof Array) {
-        console.log("MAILBOX GET", e.data.pat, mailbox.get(e.data.pat));
         match.push(e.data.msg);
       } else if (match instanceof Object) {
         match.resolve([e.data.pat, JSON.parse(e.data.msg, reviver)]);
         mailbox.delete(e.data.pat);
-        console.log("OBJ");
       }
-      console.log("CASTASDFASDFASDFASDFASDFEEEEEEE", e.data.pat, e.data.msg);
-      let element = document.createElement("div");
-      element.textContent = e.data.pat + ":" + e.data.msg;
-      document.body.appendChild(element);
-      console.log("PARSESD", JSON.parse(e.data.msg, reviver));
     }
-    console.log("ACTOR MESSAGe", e);
   }, false);
 
   class VatAddress {
@@ -72,8 +63,7 @@ const Actors = (function () {
     var b = a[i].split("=");
     query[decodeURIComponent(b[0])] = decodeURIComponent(b[1] || "");
   }
-  console.log("QUERY ACTOR", query);
-  let actor = "hello";
+  let actor = "dead";
   if (query.actor !== undefined) {
     actor = query.actor;
     if (actor.indexOf("/") !== -1 || actor.indexOf(".") !== -1) {
@@ -110,13 +100,11 @@ const Actors = (function () {
       return new Promise((resolve, reject) => {
         let matches = mailbox.get(pattern);
         if (matches instanceof Array) {
-          console.log("it is an array", pattern);
           resolve(matches.shift());
           if (matches.length === 0) {
             mailbox.delete(pattern);
           }
         } else {
-          console.log("it is not an array", pattern);
           mailbox.set(pattern, {resolve, reject});
         }
       });

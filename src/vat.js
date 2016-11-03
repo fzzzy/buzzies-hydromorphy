@@ -1,5 +1,28 @@
 
 (function () {
+  /*
+  class Stack extends React.Component {
+    constructor(props) {
+      super(props);
+      this.state = {
+        cards: []
+      };
+    }
+
+    render() {
+      return <div>stack { this.state.cards.length }</div>;
+    }
+
+    append(id, iframe) {
+      const newCards =  this.state.cards.concat([{id, iframe}]);
+      this.setState({cards: newCards});
+    }
+  }
+
+  const stack = <Stack />;
+
+  ReactDOM.render(stack, document.getElementById("root"));
+  */
   const client = require("socket.io-client");
   const socket = client();
   socket.on("msg", (msg) => {
@@ -27,8 +50,6 @@
           e.data.actor !== undefined &&
           e.data.spawn !== undefined
         ) {
-          console.log("VAT SPAWN", e.data.actor, e.data.spawn);
-          console.log("aid", e.source.actor_id);
           if (e.source.actor_id === undefined) {
             return this.spawn(e.data.spawn, e.data.actor);
           } else {
@@ -45,17 +66,12 @@
           } else {
             const act2 = this.find(e.data.actor);
             if (act2 !== undefined) {
-              console.log("LOCAL ACTOR FOUNDfor", e.data.actor);
               act2.cast(e.data.pat, e.data.msg);
             } else {
-              console.log("NO ACTOR FOUND FOR", e.data.actor);
-              console.log("THIS ACTORS", this.actors);
-              console.log("broadcasting event", e.data.msg);
               socket.emit("named", e.data);
             }
           }
         }
-        console.log("VAT EVENT", e);
       }, false);
     }
 
@@ -64,18 +80,14 @@
       if (typeof actor_name === "number") {
         console.error("IT IS A NUMBER", actor_name);
       } else if (actor_name !== undefined) {
-        console.log("actor name", actor_name, typeof actor_name);
         if (this.actors.get(actor_name) !== undefined) {
           throw new Error("Name already in use");
         }
         actor_id = actor_name;
       } else {
         actor_id = this.next_actor_id++;
-        console.log("NEXT id", this.next_actor_id);
       }
       socket.emit("register", actor_id);
-      console.log("creating new actor", actor_id);
-      console.log(new Error().stack);
       this.actors.set(`${actor_id}`, new Address(actor, actor_id));
     }
 
@@ -89,10 +101,14 @@
       this.next_msg_id = 1;
       this.outstanding_calls = new Map();
       this.iframe = document.createElement("iframe");
+      this.iframe.style.position = "absolute";
+      this.iframe.style.top = "4px";
+      this.iframe.style.left = "4px";
       this.iframe.setAttribute("width", "512");
       this.iframe.setAttribute("height", "384");
       this.iframe.src = `actor.html?actor=${encodeURIComponent(actor)}`;
       this.actor_id = actor_id;
+      //stack.append(actor_id, this.iframe);
       this.buffer = [];
       document.body.appendChild(this.iframe);
       this.iframe.contentWindow.actor_id = this.actor_id;
@@ -115,7 +131,6 @@
           msg: msg},
         "*");
       }
-      console.log("cast", pat, msg);
     }
 
     call(pat, msg) {
@@ -139,7 +154,6 @@
     var b = a[i].split("=");
     query[decodeURIComponent(b[0])] = decodeURIComponent(b[1] || "");
   }
-  console.log("QUERY", query);
   let actor = "dead";
   if (query.actor !== undefined) {
     actor = query.actor;
@@ -148,7 +162,5 @@
     }
   }
 
-  console.log("QUERY SPAWN", actor, query.name);
   vat.spawn(actor, query.name);
-
 })();

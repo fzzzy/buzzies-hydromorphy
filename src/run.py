@@ -35,11 +35,13 @@ def setup():
     subprocess.call("cp src/*.html src/*.min.js src/*.py build/", shell=True)
     bundle("src/actor.js")
     bundle("src/vat.js")
-    subprocess.call("babel --presets react --watch actors --out-dir build/actors &", shell=True)
+    subprocess.call(
+        "babel --presets react --watch actors --out-dir build/actors &",
+        shell=True)
 
     subprocess.call("python3 src/runserver.py &", shell=True)
-
     retry_until(lambda: os.path.exists("server.pid"))
+
     print("Server started, running driver")
 
     options = webdriver.ChromeOptions()

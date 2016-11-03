@@ -1,16 +1,19 @@
 /* globals Actors, React, ReactDOM  */
 
+class HelloWorld extends React.Component {
+  componentWillMount() {
+    //document.body.style.backgroundColor = "#efefef";
+  }
 
-class Test extends React.Component {
   render() {
-    return <h1>Child</h1>;
+    return <div>hello world</div>;
   }
 }
 
 async function main() {
   console.log("HELO child");
 
-  ReactDOM.render(<Test />, document.getElementById("root"));
+  ReactDOM.render(<HelloWorld />, document.getElementById("root"));
 
   const server = Actors.find("server");
 
