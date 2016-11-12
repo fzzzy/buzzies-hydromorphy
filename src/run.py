@@ -38,20 +38,8 @@ def setup():
     time.sleep(0.5)
     driver.execute_script(scr)
     time.sleep(0.5)
-    driver.get(client_address)
-    try:
-        body = driver.find_element_by_tag_name("body")
-        chain = webdriver.ActionChains(driver)
-        chain.move_to_element(body)
-        chain.click()
-        chain.key_down(Keys.COMMAND)
-        chain.key_down(Keys.ALT)
-        chain.key_down("j")
-        chain.key_up(Keys.COMMAND)
-        chain.key_up(Keys.ALT)
-        chain.perform()
-    except:
-        pass
+    scr2 = "window.open('" + client_address + "')"
+    driver.execute_script(scr2)
 
     driver.save_screenshot("screenshot.png")
 

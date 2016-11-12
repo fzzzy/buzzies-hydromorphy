@@ -4,36 +4,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 (function () {
-  let appendCard;
-
-  class Stack extends React.Component {
-    constructor(props) {
-      super(props);
-      this.state = {
-        cards: []
-      };
-      appendCard = this.append.bind(this);
-    }
-
-    render() {
-      let opts = this.state.cards.map(({id}) => {
-        return <option key={ id }>{ id }</option>;
-      });
-      return <div>
-        <select>
-          { opts }
-        </select>
-      </div>;
-    }
-
-    append(id, iframe) {
-      const newCards =  this.state.cards.concat([{id, iframe}]);
-      this.setState({cards: newCards});
-    }
-  }
-
-  ReactDOM.render(<Stack />, document.getElementById("root"));
-
   const client = require("socket.io-client");
   const socket = client();
   socket.on("msg", (msg) => {
@@ -128,10 +98,10 @@ import ReactDOM from 'react-dom';
       this.iframe.setAttribute("height", "384");
       this.iframe.src = `actor.html?actor=${encodeURIComponent(actor)}`;
       this.actor_id = actor_name;
-      appendCard(this.actor_id, this.iframe);
       this.buffer = [];
+      console.log("BACKGROUND", actor_name, background);
       if (background) {
-        document.body.insertBefore(this.iframe, document.body.lastChild);
+        document.body.insertBefore(this.iframe, document.body.firstChild);
       } else {
         document.body.appendChild(this.iframe);
       }
