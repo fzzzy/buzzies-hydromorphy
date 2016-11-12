@@ -4,6 +4,7 @@ import subprocess
 import time
 
 from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
 
 client_address = "http://localhost:5000/vat.html?actor=client"
 server_address = "http://localhost:5000/vat.html?actor=server&name=server"
@@ -21,7 +22,7 @@ def setup():
     if not os.path.exists("build"):
         os.mkdir("build")
 
-    subprocess.call("webpack --watch &", shell=True)
+    subprocess.call("webpack", shell=True)
     subprocess.call("cp src/*.html src/*.py build/", shell=True)
 
     subprocess.call("python3 src/runserver.py &", shell=True)
@@ -30,12 +31,28 @@ def setup():
 
     options = webdriver.ChromeOptions()
     options.add_argument("--js-flags=--harmony")
+    options.add_argument("--auto-open-devtools-for-tabs")
     driver = webdriver.Chrome(chrome_options=options)
     scr = "window.open('" + server_address + "')"
     print("scr", scr)
+    time.sleep(0.5)
     driver.execute_script(scr)
     time.sleep(0.5)
     driver.get(client_address)
+    try:
+        body = driver.find_element_by_tag_name("body")
+        chain = webdriver.ActionChains(driver)
+        chain.move_to_element(body)
+        chain.click()
+        chain.key_down(Keys.COMMAND)
+        chain.key_down(Keys.ALT)
+        chain.key_down("j")
+        chain.key_up(Keys.COMMAND)
+        chain.key_up(Keys.ALT)
+        chain.perform()
+    except:
+        pass
+
     driver.save_screenshot("screenshot.png")
 
     print("Loaded:", repr(driver.title), driver.current_url)

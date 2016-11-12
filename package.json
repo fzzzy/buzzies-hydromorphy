@@ -8,6 +8,7 @@
     "install_deps": "npm install && pip3 install selenium eventlet flask flask_socketio",
     "start": "if [ ! -d \"node_modules\" ]; then npm run install_deps; fi && python3 src/run.py",
     "webpack": "webpack",
+    "webpack-watch": "webpack --watch",
     "clean": "rm -rf node_modules build"
   },
   "dependencies": {
