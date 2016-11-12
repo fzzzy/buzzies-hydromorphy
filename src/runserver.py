@@ -46,7 +46,7 @@ def send_static(path):
 @app.route("/")
 def send_home():
     print("send static index.html")
-    return flask.send_from_directory(app.static_folder, "index.html")
+    return flask.send_from_directory(app.static_folder, "index.html", cache_timeout=1)
 
 @app.route("/favicon.ico")
 def send_favicon():

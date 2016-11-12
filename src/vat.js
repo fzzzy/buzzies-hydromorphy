@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import ReactDOM from 'react-dom';
 
@@ -56,10 +57,11 @@ import ReactDOM from 'react-dom';
         if (e.origin !== window.location.origin) {
           console.error("message from unacceptable origin:", e.origin, "should be:", window.location.origin);
         }
-        if (Object.getOwnPropertyNames(e.data).length === 2 &&
+        const datalen = Object.getOwnPropertyNames(e.data).length;
+        if (datalen === 3 &&
           e.data.actor !== undefined &&
-          e.data.spawn !== undefined
-        ) {
+          e.data.spawn !== undefined &&
+          e.data.background !== undefined) {
           if (e.source.actor_id === undefined) {
             return this.spawn(
               e.data.spawn,
@@ -129,7 +131,7 @@ import ReactDOM from 'react-dom';
       appendCard(this.actor_id, this.iframe);
       this.buffer = [];
       if (background) {
-        document.body.insertBefore(document.body.firstChild);
+        document.body.insertBefore(this.iframe, document.body.lastChild);
       } else {
         document.body.appendChild(this.iframe);
       }
