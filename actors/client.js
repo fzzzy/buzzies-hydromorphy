@@ -4,8 +4,18 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 class Button extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      clicked: 0
+    }
+  }
+
   onClick() {
-    console.log("clicked");
+    const newclicks = this.state.clicked + 1;
+    console.log("newclicks");
+    this.setState({clicked: newclicks});
+    this.props.child.cast("clicked", {"clicked": newclicks});
   }
 
   render() {
@@ -29,17 +39,22 @@ class Toolbar extends React.Component {
       right: "0",
       top: "4px",
       width: "64px"
-    }}><Button /><Button /><Button /><Button /></div>;
+    }}>
+      <Button child={ this.props.child } />
+      <Button child={ this.props.child } />
+      <Button child={ this.props.child } />
+      <Button child={ this.props.child } />
+    </div>;
   }
 }
 
 async function main() {
   console.log("HELO client");
 
-  ReactDOM.render(<Toolbar />, document.getElementById("root"));
-
   const child = Actors.spawn("child", {background: true});
   child.cast("test", {message: "hello whirled", from: Actors.address()});
+
+  ReactDOM.render(<Toolbar child={ child }/>, document.getElementById("root"));
 
   let [pat, msg] = await Actors.recv("response");
   console.log("RESPONSE", pat, msg);
