@@ -76,14 +76,15 @@ const Actors = (function () {
   document.body.appendChild(script);
 
   return new class Actors {
-    spawn(actor_url, actor_name) {
+    spawn(actor_url, {actor_name, background=false}) {
       let actor_id = `actorid${next_actor_id++}`;
       if (actor_name !== undefined) {
         actor_id = `${actor_id}:actorname${actor_name}`;
       }
       parent.postMessage({
         spawn: actor_url,
-        actor: actor_id
+        actor: actor_id,
+        background: background
       }, window.location.origin);
       return new VatAddress(actor_id);
     }

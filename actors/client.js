@@ -17,6 +17,7 @@ class Button extends React.Component {
       lineHeight: "32px",
       verticalAlign: "middle",
       textAlign: "center",
+      cursor: "pointer"
     }} onClick={ this.onClick.bind(this) }>{ this.props.image || "🌈" }</span>;
   }
 }
@@ -37,7 +38,7 @@ async function main() {
 
   ReactDOM.render(<Toolbar />, document.getElementById("root"));
 
-  const child = Actors.spawn("child");
+  const child = Actors.spawn("child", {background: true});
   child.cast("test", {message: "hello whirled", from: Actors.address()});
 
   let [pat, msg] = await Actors.recv("response");

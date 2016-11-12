@@ -1,16 +1,28 @@
 
+import React from 'react';
+import ReactDOM from 'react-dom';
+
 (function () {
-  /*
+  let appendCard;
+
   class Stack extends React.Component {
     constructor(props) {
       super(props);
       this.state = {
         cards: []
       };
+      appendCard = this.append.bind(this);
     }
 
     render() {
-      return <div>stack { this.state.cards.length }</div>;
+      let opts = this.state.cards.map(({id}) => {
+        return <option key={ id }>{ id }</option>;
+      });
+      return <div>
+        <select>
+          { opts }
+        </select>
+      </div>;
     }
 
     append(id, iframe) {
@@ -19,10 +31,8 @@
     }
   }
 
-  const stack = <Stack />;
+  ReactDOM.render(<Stack />, document.getElementById("root"));
 
-  ReactDOM.render(stack, document.getElementById("root"));
-  */
   const client = require("socket.io-client");
   const socket = client();
   socket.on("msg", (msg) => {
@@ -51,9 +61,16 @@
           e.data.spawn !== undefined
         ) {
           if (e.source.actor_id === undefined) {
-            return this.spawn(e.data.spawn, e.data.actor);
+            return this.spawn(
+              e.data.spawn,
+              {actor_name: e.data.actor, background: e.data.background}
+            );
           } else {
-            return this.spawn(e.data.spawn, `${e.source.actor_id}:${e.data.actor}`);
+            const actor_name = `${e.source.actor_id}:${e.data.actor}`;
+            return this.spawn(
+              e.data.spawn,
+              {actor_name, background: e.data.background}
+            );
           }
         } else if (Object.getOwnPropertyNames(e.data).length === 3 &&
           e.data.actor !== undefined &&
@@ -75,7 +92,7 @@
       }, false);
     }
 
-    spawn(actor, actor_name) {
+    spawn(actor, {actor_name, background=false}) {
       let actor_id;
       if (typeof actor_name === "number") {
         console.error("IT IS A NUMBER", actor_name);
@@ -88,7 +105,8 @@
         actor_id = this.next_actor_id++;
       }
       socket.emit("register", actor_id);
-      this.actors.set(`${actor_id}`, new Address(actor, actor_id));
+      this.actors.set(`${actor_id}`, new Address(
+        actor, {actor_name: actor_id, background: background}));
     }
 
     find(actor_name) {
@@ -97,20 +115,24 @@
   }
 
   class Address {
-    constructor(actor, actor_id) {
+    constructor(actor, {actor_name, background=false}) {
       this.next_msg_id = 1;
       this.outstanding_calls = new Map();
       this.iframe = document.createElement("iframe");
       this.iframe.style.position = "absolute";
       this.iframe.style.top = "4px";
-      this.iframe.style.left = "4px";
+      this.iframe.style.right = "4px";
       this.iframe.setAttribute("width", "512");
       this.iframe.setAttribute("height", "384");
       this.iframe.src = `actor.html?actor=${encodeURIComponent(actor)}`;
-      this.actor_id = actor_id;
-      //stack.append(actor_id, this.iframe);
+      this.actor_id = actor_name;
+      appendCard(this.actor_id, this.iframe);
       this.buffer = [];
-      document.body.appendChild(this.iframe);
+      if (background) {
+        document.body.insertBefore(document.body.firstChild);
+      } else {
+        document.body.appendChild(this.iframe);
+      }
       this.iframe.contentWindow.actor_id = this.actor_id;
       this.iframe.addEventListener("load", () => {
         const buffer = this.buffer;
@@ -162,5 +184,5 @@
     }
   }
 
-  vat.spawn(actor, query.name);
+  vat.spawn(actor, {actor_name: query.name});
 })();

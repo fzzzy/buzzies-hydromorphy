@@ -21,7 +21,7 @@ def setup():
     if not os.path.exists("build"):
         os.mkdir("build")
 
-    subprocess.call("webpack", shell=True)
+    subprocess.call("webpack --watch &", shell=True)
     subprocess.call("cp src/*.html src/*.py build/", shell=True)
 
     subprocess.call("python3 src/runserver.py &", shell=True)
