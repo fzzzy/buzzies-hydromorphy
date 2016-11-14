@@ -3,36 +3,70 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-class Button extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      clicked: 0
-    }
-  }
+const actions = ["asdf", "qwer", "zxcv", "foo", "bar", "baz", "bamf", "quux"];
+const icons = {
+  asdf: "🐿",
+  qwer: "🐑",
+  zxcv: "☀️",
+  foo: "⛈",
+  bar: "💥",
+  baz: "🎿",
+  bamf: "🚗",
+  quux: "🌅"
+}
 
+
+class Button extends React.Component {
   onClick() {
-    const newclicks = this.state.clicked + 1;
-    console.log("newclicks");
-    this.setState({clicked: newclicks});
-    this.props.child.cast("clicked", {"clicked": newclicks});
+    this.props.onClick(this.props.action);
   }
 
   render() {
+    const border = this.props.active ? "1px solid black" : "transparent";
     return <span style={{
       display: "inline-block",
+      boxSizing: "border-box",
       width: "32px",
       height: "32px",
       fontSize: "32px",
-      lineHeight: "32px",
+      lineHeight: "38px",
       verticalAlign: "middle",
       textAlign: "center",
-      cursor: "pointer"
-    }} onClick={ this.onClick.bind(this) }>{ this.props.image || "🌈" }</span>;
+      cursor: "pointer",
+      border: border
+    }} onClick={ this.onClick.bind(this) }>
+      { this.props.image || "🌈" }
+    </span>;
   }
 }
 
 class Toolbar extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      "action": "asdf"
+    }
+    this.props.child.cast("clicked", {"clicked": "asdf"});
+  }
+
+  *generateButtons() {
+    for (let i = 0; i < actions.length; i++) {
+      let action = actions[i];
+      yield <Button
+        onClick={ this.onClickButton.bind(this) }
+        key={ `button${i}` }
+        image={ icons[action] }
+        action={ action }
+        active={ action === this.state.action } />;
+    }
+  }
+
+  onClickButton(action) {
+    console.log("BUTTON", action);
+    this.setState({"action": action});
+    this.props.child.cast("clicked", {"clicked": action});
+  }
+
   render() {
     return <div style={{
       position: "absolute",
@@ -40,10 +74,7 @@ class Toolbar extends React.Component {
       top: "4px",
       width: "64px"
     }}>
-      <Button child={ this.props.child } />
-      <Button child={ this.props.child } />
-      <Button child={ this.props.child } />
-      <Button child={ this.props.child } />
+      { Array.from(this.generateButtons()) }
     </div>;
   }
 }
