@@ -17,7 +17,7 @@ const Actors = (function () {
       e.data.pat !== undefined &&
       e.data.msg !== undefined
     ) {
-      console.log("cast", e.data.pat, e.data.msg)
+      console.log("cast", window.actor_id, e.data.pat, e.data.msg)
       let match = mailbox.get(e.data.pat);
       if (match === undefined) {
         mailbox.set(e.data.pat, []);
@@ -26,6 +26,11 @@ const Actors = (function () {
       } else if (match instanceof Object) {
         match.resolve([e.data.pat, JSON.parse(e.data.msg, reviver)]);
         mailbox.delete(e.data.pat);
+        for (let [k, v] of mailbox) {
+          if (!(v instanceof Array)) {
+            mailbox.delete(k);
+          }
+        }
       }
     }
   }, false);
@@ -98,15 +103,41 @@ const Actors = (function () {
     }
 
     recv(pattern) {
+      console.log("RECV", pattern);
+      if (this.blocked) {
+        throw new Error("recv is not reentrant; only one call to recv may be made at a time");
+      }
+      this.blocked = true;
       return new Promise((resolve, reject) => {
-        let matches = mailbox.get(pattern);
-        if (matches instanceof Array) {
-          resolve(matches.shift());
-          if (matches.length === 0) {
-            mailbox.delete(pattern);
+        let toset = new Map();
+        let patterns = pattern;
+        if (typeof patterns === "string") {
+          patterns = [patterns];
+        }
+        for (let pattern of patterns) {
+          let matches = mailbox.get(pattern);
+          if (matches instanceof Array) {
+            resolve(matches.shift());
+            if (matches.length === 0) {
+              mailbox.delete(pattern);
+            }
+            this.blocked = false;
+            return;
+          } else {
+            toset.set(pattern, {
+              resolve: (val) => {
+                this.blocked = false;
+                resolve(val);
+              },
+              reject: (val) => {
+                this.blocked = false;
+                reject(val);
+              }
+            });
           }
-        } else {
-          mailbox.set(pattern, {resolve, reject});
+        }
+        for (let [k, v] of toset) {
+          mailbox.set(k, v);
         }
       });
     }

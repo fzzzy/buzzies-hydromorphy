@@ -3,21 +3,44 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+let state = null;
+let entities = [];
+
+function render(clicked=null) {
+  if (clicked !== null) {
+    state = clicked;
+  }
+  ReactDOM.render(
+    <HelloWorld clicked={ state } entities={ entities } />,
+    document.getElementById("root"));
+}
+
 class HelloWorld extends React.Component {
   componentWillMount() {
     //document.body.style.backgroundColor = "#efefef";
   }
 
+  *generateEntities() {
+    let i = 0;
+    for (var ent of this.props.entities) {
+      yield <div key={ i++ } style={{
+        position: "absolute",
+        left: `${ent.x}px`,
+        top: `${ent.y}px`
+      }}>
+{ ent.state }
+      </div>
+    }
+  }
+
   render() {
-    return <div>hello world { this.props.clicked }</div>;
+    return <div>
+      hello world { this.props.clicked }
+      { Array.from(this.generateEntities() )}
+    </div>;
   }
 }
 
-function render(clicked=0) {
-  ReactDOM.render(
-    <HelloWorld clicked={ clicked } />,
-    document.getElementById("root"));
-}
 async function main() {
   console.log("HELO child");
 
@@ -32,8 +55,14 @@ async function main() {
   msg.from.cast("response", {msg: "it works!", from: Actors.address()});
 
   while (true) {
-    let [pat, msg] = await Actors.recv("clicked");
-    render(msg.clicked);
+    let [pat, msg] = await Actors.recv(["action", "add"]);
+    console.log("CHILD GOT MSG", pat, msg);
+    if (pat === "action") {
+      render(msg.action);
+    } else if (pat === "add") {
+      entities.push({state: state, x: msg.x, y: msg.y});
+      render();
+    }
   }
 }
 
