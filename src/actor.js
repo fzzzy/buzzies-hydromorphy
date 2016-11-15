@@ -46,6 +46,9 @@ const Actors = (function () {
       if (typeof pat !== "string") {
         throw new Error("pat argument must be a string");
       }
+      if (msg === undefined) {
+        msg = {};
+      }
       parent.postMessage({actor: this.actor_id, pat, msg: JSON.stringify(msg)}, window.location.origin);
     }
 
