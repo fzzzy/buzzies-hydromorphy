@@ -16,7 +16,7 @@ function render(clicked=null) {
     document.getElementById("root"));
 }
 
-class TextEditor extends React.Component {
+class Editor extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -25,7 +25,7 @@ class TextEditor extends React.Component {
   }
 
   componentDidMount() {
-    if (editing !== null && state === "text" && this.editor) {
+    if (editing !== null && this.editor) {
       this.editor.focus();
     }
   }
@@ -43,9 +43,17 @@ class TextEditor extends React.Component {
 
   render() {
     return <form onSubmit={ this.onSubmit.bind(this) }>
+      <div style={{
+        position: "relative",
+        top: "-20px",
+        left: "0"
+      }}>
+        { this.props.help }
+      </div>
       <input ref={ (e) => { this.editor = e; } }
         style={{
-          width: "auto",
+          position: "relative",
+          top: "-20px",
           fontSize: "12pt",
           fontFamily: "serif",
           border: "none"
@@ -66,8 +74,14 @@ class HelloWorld extends React.Component {
     for (var ent of this.props.entities) {
       let content = ent.state;
       if (ent === editing) {
-        if (state === "text") {
-          content = <TextEditor />;
+        if (ent.type === "text") {
+          content = <Editor help="Type text" />;
+        } else if (ent.type === "picture") {
+          content = <Editor help="Enter image url" />;
+        }
+      } else {
+        if (ent.type === "picture") {
+          content = <img src={ content } />;
         }
       }
       yield <div key={ i++ } style={{
@@ -84,7 +98,7 @@ class HelloWorld extends React.Component {
 
   render() {
     return <div>
-      hello world { this.props.clicked }
+      { this.props.clicked }
       { Array.from(this.generateEntities() )}
     </div>;
   }
@@ -97,7 +111,7 @@ class Controller {
 
   add({x, y}) {
     const obj = {type: state, state: state, x: x, y: y - 12};
-    if (state === "text") {
+    if (state === "text" || state === "picture") {
       obj.state = "";
       editing = obj;
     }
