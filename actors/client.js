@@ -16,7 +16,6 @@ let child = null;
 
 class ImagePicker extends React.Component {
   onClick(x, e) {
-    console.log("ONCLICK", e, x);
     this.props.onPick(x);
     e.stopPropagation();
     e.preventDefault();
@@ -88,7 +87,6 @@ class Editing extends React.Component {
 
   onSubmit(e) {
     e.preventDefault();
-    console.log("e.", e, e.target, e.action);
     this.props.commit(this.state.value);
     render();
   }
@@ -124,7 +122,6 @@ class Editing extends React.Component {
 
 class Button extends React.Component {
   onClick(e) {
-    console.log("BUTTON ONCLICK");
     e.stopPropagation();
     this.props.onClick(this.props.action.label, this.props.action.cursor);
   }
@@ -154,7 +151,6 @@ class Toolbar extends React.Component {
     this.state = {
       "action": props.action
     };
-    this.props.child.cast("action", {"action": "text"});
   }
 
   *generateButtons() {
@@ -212,7 +208,6 @@ class Editor extends React.Component {
     const x = e.clientX;
     const y = e.clientY;
 
-    console.log("ONCLICK", x, y);
     this.setState({editing:
       {type: this.state.action, state: this.state.action, x: x, y: y}
     });
@@ -220,15 +215,14 @@ class Editor extends React.Component {
   }
 
   commit(entity) {
-    console.log(
-      "COMMIT", this.state.action, entity,
-      this.state.editing.x, this.state.editing.y);
-    this.props.child.cast("add", {
-      action: this.state.action,
-      x: this.state.editing.x,
-      y: this.state.editing.y - 12,
-      state: entity
-    });
+    if (entity) {
+      this.props.child.cast("add", {
+        action: this.state.action,
+        x: this.state.editing.x,
+        y: this.state.editing.y - 12,
+        state: entity
+      });
+    }
     this.setState({editing: null});
   }
 
