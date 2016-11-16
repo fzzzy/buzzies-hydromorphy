@@ -4,15 +4,115 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 const actions = [
-  {label: "text", icon: "🐿", cursor: "text"},
-  {label: "picture", icon: "🐑", cursor: "crosshair"},
-  {label: "field", icon: "⛈", cursor: "text"},
-  {label: "button", icon: "☀️", cursor: "crosshair"},
-  {label: "bar", icon: "💥", cursor: "default"},
-  {label: "baz", icon: "🎿", cursor: "default"},
-  {label: "bamf", icon: "🚗", cursor: "default"},
-  {label: "quux", icon: "🌅", cursor: "default"}
+  {label: "browse", icon: "👆", cursor: "pointer"},
+  {label: "move", icon: "👈", cursor: "move"},
+  {label: "text", icon: "🔤", cursor: "text"},
+  {label: "image", icon: "🏞", cursor: "crosshair"},
+  {label: "button", icon: "⏺", cursor: "crosshair"},
+  {label: "field", icon: "💬", cursor: "default"},
 ];
+
+let child = null;
+
+class ImagePicker extends React.Component {
+  onClick(x, e) {
+    console.log("ONCLICK", e, x);
+    this.props.onPick(x);
+    e.stopPropagation();
+    e.preventDefault();
+  }
+
+  *generateImages() {
+    let i = 0;
+    for (let x of [
+      "🏔", "⛰", "🌋", "🗻", "🏕", "🏖", "🏜", "🏝",
+      "🏞", "🏟", "🏗", "🏘", "🏙", "🏭", "🏯", "🏰",
+      "🗼", "🗽", "⛲", "⛺", "🌁", "🌃", "🌄", "🌅",
+      "🌆", "🌇", "🌉", "🌌", "🎠", "🎡", "🎢", "🚢"]) {
+      yield <button
+        key={ `image:${i++}` }
+        onClick={ this.onClick.bind(this, x) }
+        style={{
+          height: "32px",
+          width: "32px",
+          padding: "0px",
+          fontSize: "32px",
+          backgroundColor: "transparent",
+          border: "none",
+          cursor: "pointer"
+        }}>
+        { x }
+      </button>;
+    }
+  }
+
+  render() {
+    return <div style={{
+      display: "block",
+      height: "144px",
+      width: "256px",
+      border: "1px solid #ababab",
+      padding: "0",
+      overflow: "scroll"
+    }}>
+      { Array.from(this.generateImages()) }
+    </div>;
+  }
+}
+
+class Editing extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      value: ""
+    }
+  }
+
+  componentDidMount() {
+    if (this.editor) {
+      this.editor.focus();
+    }
+  }
+
+  componentDidUpdate() {
+    if (this.editor) {
+      this.editor.focus();
+    }
+  }
+
+  onChange(e) {
+    this.setState({value: e.target.value});
+  }
+
+  onSubmit(e) {
+    e.preventDefault();
+    console.log("e.", e, e.target, e.action);
+    this.props.commit(this.state.value);
+    render();
+  }
+
+  render() {
+    return <div style={{
+      position: "relative",
+      padding: "12px"
+    }}>
+      <form onSubmit={ this.onSubmit.bind(this) }>
+        <div>
+          { this.props.help }
+        </div>
+        <input ref={ (e) => { this.editor = e; } }
+          style={{
+            fontSize: "12pt",
+            fontFamily: "serif",
+            border: "none"
+          }}
+          value={ this.state.value }
+          onChange={ this.onChange.bind(this) } />
+      </form>
+      { this.props.children }
+    </div>;
+  }
+}
 
 class Button extends React.Component {
   onClick(e) {
@@ -44,8 +144,8 @@ class Toolbar extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      "action": "text"
-    }
+      "action": props.action
+    };
     this.props.child.cast("action", {"action": "text"});
   }
 
@@ -63,8 +163,8 @@ class Toolbar extends React.Component {
   onClickButton(action, cursor) {
     console.log("BUTTON", action);
     this.setState({"action": action});
-    this.props.child.cast("action", {"action": action});
     this.props.setCursor(cursor);
+    this.props.setAction(action);
   }
 
   render() {
@@ -83,7 +183,8 @@ class Editor extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      cursor: "text"
+      cursor: "text",
+      action: "text"
     }
   }
 
@@ -93,34 +194,110 @@ class Editor extends React.Component {
     });
   }
 
+  setAction(type) {
+    this.setState({
+      action: type
+    });
+  }
+
   onClick(e) {
-    console.log("EDITOR ONCLICK");
-    this.props.child.cast("add", {x: e.clientX, y: e.clientY});
-    console.log("ONCLICK", e.clientX, e.clientY);
+    const x = e.clientX;
+    const y = e.clientY;
+
+    console.log("ONCLICK", x, y);
+    this.setState({editing:
+      {type: this.state.action, state: this.state.action, x: x, y: y}
+    });
+    render();
+  }
+
+  commit(entity) {
+    console.log(
+      "COMMIT", this.state.action, entity,
+      this.state.editing.x, this.state.editing.y);
+    this.props.child.cast("add", {
+      action: this.state.action,
+      x: this.state.editing.x,
+      y: this.state.editing.y - 12,
+      state: entity
+    });
+    this.setState({editing: null});
+  }
+
+  pick(entity) {
+    console.log("PICK", entity);
+    this.props.child.cast("add", {
+      action: "emoji",
+      x: this.state.editing.x,
+      y: this.state.editing.y - 12,
+      state: entity
+    });
+
+    this.setState({editing: null});
   }
 
   render() {
+    let editor = null;
+    let editing = this.state.editing;
+    if (editing) {
+      if (editing.type === "text") {
+        editor = <Editing
+          help="Type text"
+          commit={ this.commit.bind(this) } />;
+      } else if (editing.type === "image") {
+        editor = <Editing
+          help="Enter image url"
+          commit={ this.commit.bind(this) }>
+          Or choose image
+          <ImagePicker onPick={ this.pick.bind(this) } />
+        </Editing>;
+      }
+      editor = <div>
+        <div style={{
+          fontSize: "16pt",
+          fontFamily: "serif",
+          position: "absolute",
+          left: `${ editing.x - 8 }px`,
+          top: `${ editing.y - 12 }px`
+        }}>
+          ➕
+        </div>
+        { editor }
+      </div>;
+    } else {
+      editor = <Toolbar
+        child={ this.props.child }
+        action={ this.state.action }
+        setAction={ this.setAction.bind(this) }
+        setCursor={ this.setCursor.bind(this) }/>;
+    }
+
     return <div onClick={ this.onClick.bind(this) } style={{
       position: "absolute",
       top: "0",
       left: "0",
       right: "0",
       bottom: "0",
+      overflow: "hidden",
       backgroundColor: "rgba(0, 0, 0, 0.03125)",
       cursor: this.state.cursor,
     }}>
-      <Toolbar child={ this.props.child } setCursor={ this.setCursor.bind(this) }/>
+      { editor }
     </div>;
   }
+}
+
+function render() {
+  ReactDOM.render(<Editor child={ child } />, document.getElementById("root"));
 }
 
 async function main() {
   console.log("HELO client");
 
-  const child = Actors.spawn("child", {background: true});
-  child.cast("test", {message: "hello whirled", from: Actors.address()});
+  child = Actors.spawn("child", {background: true});
+  child.cast("hello", {message: "hello whirled", from: Actors.address()});
 
-  ReactDOM.render(<Editor child={ child } />, document.getElementById("root"));
+  render();
 
   let [pat, msg] = await Actors.recv("response");
   console.log("RESPONSE", pat, msg);

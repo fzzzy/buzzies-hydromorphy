@@ -110,7 +110,7 @@ import ReactDOM from 'react-dom';
         const buffer = this.buffer;
         delete this.buffer;
 
-        for (const [pat, msg] of buffer) {
+        for (const [pat, msg] of buffer || []) {
           this.cast(pat, msg);
         }
       }, false);
