@@ -49,11 +49,12 @@ class ImagePicker extends React.Component {
   render() {
     return <div style={{
       display: "block",
-      height: "144px",
-      width: "256px",
+      boxSizing: "border-box",
+      height: "148px",
+      width: "260px",
       border: "1px solid #ababab",
       padding: "0",
-      overflow: "scroll"
+      overflow: "hidden"
     }}>
       { Array.from(this.generateImages()) }
     </div>;
