@@ -149,7 +149,12 @@ class Toolbar extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      "action": props.action
+      action: props.action,
+      animating: false,
+      originX: 0,
+      originY: 0,
+      offsetX: 0,
+      offsetY: 0
     };
   }
 
@@ -171,13 +176,57 @@ class Toolbar extends React.Component {
     this.props.setAction(action);
   }
 
+  onMouseDownTitleBar(e) {
+    console.log("MOUSEDOWN", e.clientX, e.clientY);
+    this.setState({animating: true, originX: e.clientX - this.state.offsetX, originY: e.clientY - this.state.offsetY});
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  onMouseMoveTitleBar(e) {
+    if (this.state.animating) {
+      this.setState({offsetX: e.clientX - this.state.originX, offsetY: e.clientY - this.state.originY});
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }
+
+  onMouseUpTitleBar(e) {
+    this.setState({animating: false});
+    console.log("MOUSEUP", e);
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  onClickTitleBar(e) {
+    console.log("ONCLICKTB");
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
   render() {
     return <div style={{
       position: "absolute",
-      right: "0",
-      top: "4px",
-      width: "64px"
+      right: `${ - this.state.offsetX }px`,
+      top: `${ this.state.offsetY }px`,
+      width: "66px",
+      boxSizing: "border-box",
+      border: "1px solid #cdcdcd"
     }}>
+      <div onMouseDown={ this.onMouseDownTitleBar.bind(this) }
+        onMouseMove={ this.onMouseMoveTitleBar.bind(this) }
+        onMouseUp={ this.onMouseUpTitleBar.bind(this) }
+        onClick={ this.onClickTitleBar.bind(this) }
+        style={{
+          boxSizing: "border-box",
+          borderBottom: "1px solid #cdcdcd",
+          backgroundColor: "#efefef",
+          height: "32px",
+          width: "100%",
+          cursor: "move"
+        }}>
+
+      </div>
       { Array.from(this.generateButtons()) }
     </div>;
   }
