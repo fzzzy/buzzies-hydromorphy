@@ -53,6 +53,7 @@ class ImagePicker extends React.Component {
       height: "148px",
       width: "260px",
       border: "1px solid #ababab",
+      backgroundColor: "white",
       padding: "0",
       overflow: "hidden"
     }}>
@@ -97,7 +98,12 @@ class Editing extends React.Component {
       position: "relative",
       padding: "12px"
     }}>
-      <form onSubmit={ this.onSubmit.bind(this) }>
+      <form style={{
+        backgroundColor: "white",
+        boxSizing: "border-box",
+        border: "1px solid black",
+        padding: "6px"
+      }} onSubmit={ this.onSubmit.bind(this) }>
         <div>
           { this.props.help }
         </div>
@@ -105,7 +111,8 @@ class Editing extends React.Component {
           style={{
             fontSize: "12pt",
             fontFamily: "serif",
-            border: "none"
+            border: "none",
+            width: "100%"
           }}
           value={ this.state.value }
           onChange={ this.onChange.bind(this) } />
@@ -242,27 +249,46 @@ class Editor extends React.Component {
     let editing = this.state.editing;
     if (editing) {
       if (editing.type === "text") {
-        editor = <Editing
-          help="Type text"
-          commit={ this.commit.bind(this) } />;
-      } else if (editing.type === "image") {
-        editor = <Editing
-          help="Enter image url"
-          commit={ this.commit.bind(this) }>
-          Or choose image
-          <ImagePicker onPick={ this.pick.bind(this) } />
-        </Editing>;
-      }
-      editor = <div>
-        <div style={{
-          fontSize: "16pt",
+        editor = <div style={{
+          fontSize: "12pt",
           fontFamily: "serif",
           position: "absolute",
-          left: `${ editing.x - 8 }px`,
-          top: `${ editing.y - 12 }px`
+          left: `${ editing.x - 20 }px`,
+          top: `${ editing.y - 50 }px`
         }}>
-          ➕
-        </div>
+          <Editing
+            help="Type text"
+            commit={ this.commit.bind(this) } />
+        </div>;
+      } else if (editing.type === "image") {
+        editor = <div>
+          <div style={{
+            fontSize: "16pt",
+            fontFamily: "serif",
+            position: "absolute",
+            left: `${ editing.x - 8 }px`,
+            top: `${ editing.y - 12 }px`
+          }}>
+            ➕
+          </div>
+
+          <Editing
+            help="Enter image url"
+            commit={ this.commit.bind(this) }>
+            <div style={{
+              padding: "6px",
+              backgroundColor: "white",
+              boxSizing: "border-box",
+              border: "1px solid black",
+              borderTop: "none"
+            }}>
+              Or choose image
+              <ImagePicker onPick={ this.pick.bind(this) } />
+            </div>
+          </Editing>
+        </div>;
+      }
+      editor = <div>
         { editor }
       </div>;
     } else {
