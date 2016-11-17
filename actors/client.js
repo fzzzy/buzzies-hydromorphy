@@ -122,6 +122,20 @@ class Editing extends React.Component {
   }
 }
 
+class SimpleEditor extends React.Component {
+  render() {
+    return <div style={{
+      fontSize: "12pt",
+      fontFamily: "serif",
+      position: "absolute",
+      left: `${ this.props.editing.x - 20 }px`,
+      top: `${ this.props.editing.y - 50 }px`
+    }}>
+      <Editing help={ this.props.help } commit={ this.props.commit } />
+    </div>;
+  }
+}
+
 class Button extends React.Component {
   onClick(e) {
     e.stopPropagation();
@@ -263,7 +277,8 @@ class Editor extends React.Component {
     const x = e.clientX;
     const y = e.clientY;
 
-    if (this.state.action === "text" || this.state.action === "image" || this.state.action === "button") {
+    if (this.state.action === "text" || this.state.action === "image" ||
+      this.state.action === "button" || this.state.action === "field") {
       this.setState({editing:
         {type: this.state.action, state: this.state.action, x: x, y: y}
       });
@@ -322,17 +337,20 @@ class Editor extends React.Component {
     let editing = this.state.editing;
     if (editing) {
       if (editing.type === "text") {
-        editor = <div style={{
-          fontSize: "12pt",
-          fontFamily: "serif",
-          position: "absolute",
-          left: `${ editing.x - 20 }px`,
-          top: `${ editing.y - 50 }px`
-        }}>
-          <Editing
-            help="Type text"
-            commit={ this.commit.bind(this) } />
-        </div>;
+        editor = <SimpleEditor
+          editing={ editing }
+          help="Type text"
+          commit={ this.commit.bind(this) } />;
+      } else if (editing.type === "button") {
+        editor = <SimpleEditor
+          editing={ editing }
+          help="Enter button label"
+          commit={ this.commit.bind(this) } />;
+      } else if (editing.type === "field") {
+        editor = <SimpleEditor
+          editing={ editing }
+          help="Enter field name"
+          commit={ this.commit.bind(this) } />;
       } else if (editing.type === "image") {
         editor = <div>
           <div style={{
@@ -359,18 +377,6 @@ class Editor extends React.Component {
               <ImagePicker onPick={ this.pick.bind(this) } />
             </div>
           </Editing>
-        </div>;
-      } else if (editing.type === "button") {
-        editor = <div style={{
-          fontSize: "12pt",
-          fontFamily: "serif",
-          position: "absolute",
-          left: `${ editing.x - 20 }px`,
-          top: `${ editing.y - 50 }px`
-        }}>
-          <Editing
-            help="Enter button label"
-            commit={ this.commit.bind(this) } />
         </div>;
       }
       editor = <div>
