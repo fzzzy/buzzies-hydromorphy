@@ -23,7 +23,7 @@ def setup():
         os.mkdir("build")
 
     subprocess.call("webpack", shell=True)
-    subprocess.call("cp src/*.html src/*.py build/", shell=True)
+    subprocess.call("cp src/*.html src/*.py src/*.gif build/", shell=True)
 
     subprocess.call("python3 src/runserver.py &", shell=True)
     retry_until(lambda: os.path.exists("server.pid"))

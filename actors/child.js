@@ -62,6 +62,11 @@ class Entity extends React.Component {
 
   onMouseDown(e) {
     if (state === "move") {
+      let {top, left, height, width} = this.node.getBoundingClientRect();
+      if (this.props.entity.action === "emoji") {
+        height -= 28;
+      }
+      controller.selected({top, left, height, width});
       moving = this.props.entity;
       this.setState({prevX: e.clientX, prevY: e.clientY});
       e.preventDefault();
@@ -78,11 +83,18 @@ class Entity extends React.Component {
       moving.x -= deltaX;
       moving.y -= deltaY;
       this.setState({prevX: e.clientX, prevY: e.clientY});
+      let {top, left, height, width} = this.node.getBoundingClientRect();
+      if (this.props.entity.action === "emoji") {
+        height -= 28;
+      }
+      window.requestAnimationFrame(
+        () => controller.selected({top, left, height, width}));
     }
   }
 
   onMouseUp(e) {
     if (state === "move") {
+      //controller.deselected();
       e.preventDefault();
       e.stopPropagation();
       moving = null;
@@ -99,6 +111,7 @@ class Entity extends React.Component {
 
   render() {
     return <div
+      ref={ (e) => this.node = e }
       onMouseDown={ this.onMouseDown.bind(this) }
       onMouseMove={ this.onMouseMove.bind(this) }
       onMouseUp={ this.onMouseUp.bind(this) }
@@ -121,7 +134,8 @@ class HelloWorld extends React.Component {
       } else if (ent.action === "emoji") {
         val = <span style={{
           whiteSpace: "nowrap",
-          fontSize: "128px"
+          fontSize: "128px",
+          lineHeight: "156px",
         }}>
           { ent.state }
         </span>;
@@ -186,7 +200,16 @@ class Controller {
 
   add(obj) {
     entities.push(obj);
+    this.deselected();
     render();
+  }
+
+  selected({top, left, height, width}) {
+    this.parent.cast("selected", {top, left, height, width});
+  }
+
+  deselected() {
+    this.parent.cast("deselected");
   }
 }
 

@@ -15,6 +15,8 @@ const actions = [
 let child = null;
 let offsetX = 0;
 let offsetY = 0;
+let selection = null;
+let ants = 0;
 
 class ImagePicker extends React.Component {
   onClick(x, e) {
@@ -187,6 +189,7 @@ class Toolbar extends React.Component {
 
   onClickButton(action, cursor) {
     //console.log("BUTTON", action);
+    selection = null;
     this.setState({"action": action});
     this.props.setCursor(cursor);
     this.props.setAction(action);
@@ -333,6 +336,13 @@ class Editor extends React.Component {
   }
 
   render() {
+    let showSelection = null;
+    if (selection) {
+      showSelection = <Selection
+        top={ selection.top } left={ selection.left }
+        height={ selection.height } width={ selection.width } />
+    }
+
     let editor = null;
     let editing = this.state.editing;
     if (editing) {
@@ -406,7 +416,24 @@ class Editor extends React.Component {
       cursor: this.state.cursor,
     }}>
       { editor }
+      { showSelection }
     </div>;
+  }
+}
+
+class Selection extends React.Component {
+  render() {
+    return <div style={{
+      borderImage: "url('selection.gif') 1 1 1 1 repeat repeat",
+      borderStyle: "dashed",
+      borderWidth: "1px",
+      pointerEvents: "none",
+      position: "absolute",
+      top: `${ this.props.top }px`,
+      left: `${ this.props.left }px`,
+      width: `${ this.props.width }px`,
+      height: `${ this.props.height }px`,
+    }}></div>;
   }
 }
 
@@ -425,6 +452,17 @@ async function main() {
   let [pat, msg] = await Actors.recv("response");
   console.log("RESPONSE", pat, msg);
   msg.from.cast("responseresponse", {msg: "ha!"});
+
+  while (true) {
+    let [pat, msg] = await Actors.recv(["selected", "deselected"]);
+    if (pat === "selected") {
+      selection = msg;
+      render();
+    } else if (pat === "deselected") {
+      selection = null;
+      render();
+    }
+  }
 }
 
 main();
