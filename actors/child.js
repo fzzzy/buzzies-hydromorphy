@@ -4,6 +4,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 let controller = null;
+let state = null;
+let moving = null;
 //let entities = [{action: "button", x: 233, y: 132, state: "button"}];
 let entities = [];
 
@@ -49,6 +51,64 @@ class Field extends React.Component {
   }
 }
 
+class Entity extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      prevX: 0,
+      prevY: 0
+    };
+  }
+
+  onMouseDown(e) {
+    if (state === "move") {
+      moving = this.props.entity;
+      this.setState({prevX: e.clientX, prevY: e.clientY});
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }
+
+  onMouseMove(e) {
+    if (state === "move") {
+      e.preventDefault();
+      e.stopPropagation();
+      let deltaX = this.state.prevX - e.clientX;
+      let deltaY = this.state.prevY - e.clientY;
+      moving.x -= deltaX;
+      moving.y -= deltaY;
+      this.setState({prevX: e.clientX, prevY: e.clientY});
+    }
+  }
+
+  onMouseUp(e) {
+    if (state === "move") {
+      e.preventDefault();
+      e.stopPropagation();
+      moving = null;
+      this.setState({prevX: 0, prevY: 0});
+    }
+  }
+
+  onClick(e) {
+    if (state === "move") {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }
+
+  render() {
+    return <div
+      onMouseDown={ this.onMouseDown.bind(this) }
+      onMouseMove={ this.onMouseMove.bind(this) }
+      onMouseUp={ this.onMouseUp.bind(this) }
+      onClick={ this.onClick.bind(this) }
+    >
+      { this.props.children }
+    </div>;
+  }
+}
+
 class HelloWorld extends React.Component {
   *generateEntities() {
     let i = 0;
@@ -68,16 +128,12 @@ class HelloWorld extends React.Component {
       } else if (ent.action === "button") {
         val = <button onMouseDown={ (e) => {
           e.target.focus();
-          console.log("el buttono md");
         }}
         onMouseUp={ (e) => {
           e.target.blur();
-          console.log("el buttono mu");
-        }}
-        onClick={ (e) => {
-          //alert("You clicked the button named \"" + ent.state + "\"");
-          console.log("clicked el buttono", ent.state, e.clientX, e.clientY);
-        }}>{ ent.state }</button>;
+        }}>
+          { ent.state }
+        </button>;
       } else if (ent.action === "field") {
         val = <Field name={ ent.state } value="" />;
       } else {
@@ -87,7 +143,11 @@ class HelloWorld extends React.Component {
         position: "absolute",
         top: `${ ent.y }px`,
         left: `${ ent.x }px`,
-      }} key={ i++ }>{ val }</div>;
+      }} key={ i++ }>
+        <Entity entity={ ent }>
+          { val }
+        </Entity>
+      </div>;
     }
   }
 
@@ -109,16 +169,15 @@ class Controller {
     this.parent.cast("commit", {});
   }
 
-  action({action, x, y}) {
+  action({action, type, x, y}) {
     if (action === "browse") {
-      console.log("BROWSE", x, y);
-      let e = makeEvent("click", x, y);
+      state = "browse";
+      //console.log("BROWSE", x, y);
+      let e = makeEvent(type, x, y);
       document.elementFromPoint(x, y).dispatchEvent(e);
-    } else if (action === "mousedown") {
-      let e = makeEvent("mousedown", x, y);
-      document.elementFromPoint(x, y).dispatchEvent(e);
-    } else if (action === "mouseup") {
-      let e = makeEvent("mouseup", x, y);
+    } else if (action === "move") {
+      state = "move";
+      let e = makeEvent(type, x, y);
       document.elementFromPoint(x, y).dispatchEvent(e);
     }
 //    console.log("ACTION", action, x, y)

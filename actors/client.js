@@ -186,7 +186,7 @@ class Toolbar extends React.Component {
   }
 
   onClickButton(action, cursor) {
-    console.log("BUTTON", action);
+    //console.log("BUTTON", action);
     this.setState({"action": action});
     this.props.setCursor(cursor);
     this.props.setAction(action);
@@ -284,27 +284,27 @@ class Editor extends React.Component {
       });
       render();
     } else {
-      this.props.child.cast("action", {action: this.state.action, x, y});
+      this.props.child.cast("action", {action: this.state.action, type: "click", x, y});
     }
   }
 
   onMouseDown(e) {
     if (this.state.action === "browse" || this.state.action === "move") {
       this.setState({mousedown: true});
-      this.props.child.cast("action", {action: "mousedown", x: e.clientX, y: e.clientY});
+      this.props.child.cast("action", {action: this.state.action, type: "mousedown", x: e.clientX, y: e.clientY});
     }
   }
 
   onMouseMove(e) {
     if (this.state.mousedown) {
-      this.props.child.cast("action", {action: "mousemove", x: e.clientX, y: e.clientY});
+      this.props.child.cast("action", {action: this.state.action, type: "mousemove", x: e.clientX, y: e.clientY});
     }
   }
 
   onMouseUp(e) {
     if (this.state.mousedown) {
       this.setState({mousedown: false});
-      this.props.child.cast("action", {action: "mouseup", x: e.clientX, y: e.clientY});
+      this.props.child.cast("action", {action: this.state.action, type: "mouseup", x: e.clientX, y: e.clientY});
     }
   }
 
