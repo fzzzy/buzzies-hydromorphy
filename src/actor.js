@@ -17,7 +17,7 @@ const Actors = (function () {
       e.data.pat !== undefined &&
       e.data.msg !== undefined
     ) {
-      console.log("cast", window.actor_id, e.data.pat, e.data.msg)
+      //console.log("cast", window.actor_id, e.data.pat, e.data.msg)
       let match = mailbox.get(e.data.pat);
       if (match === undefined) {
         mailbox.set(e.data.pat, []);
@@ -106,7 +106,7 @@ const Actors = (function () {
     }
 
     recv(pattern) {
-      console.log("RECV", pattern);
+      //console.log("RECV", pattern);
       if (this.blocked) {
         throw new Error("recv is not reentrant; only one call to recv may be made at a time");
       }

@@ -4,7 +4,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 let controller = null;
-let entities = [];
+let entities = [{action: "button", x: 233, y: 132, state: "button"}];
 
 function render() {
   ReactDOM.render(
@@ -28,6 +28,18 @@ class HelloWorld extends React.Component {
         }}>
           { ent.state }
         </span>;
+      } else if (ent.action === "button") {
+        val = <button onMouseDown={ (e) => {
+          console.log("el buttono md");
+        }}
+        onMouseUp={ (e) => {
+          console.log("el buttono mu");
+        }}
+        onClick={ (e) => {
+          console.log("clicked el buttono", ent.state, e.clientX, e.clientY);
+        }}>{ ent.state }</button>;
+      } else if (ent.action === "field") {
+        val = <input value={ ent.state }></input>;
       } else {
         val = ent.action;
       }
@@ -57,7 +69,30 @@ class Controller {
     this.parent.cast("commit", {});
   }
 
-  action({action}) {
+  action({action, x, y}) {
+    if (action === "browse") {
+      console.log("BROWSE", x, y);
+      //document.elementFromPoint(x, y).click()
+    } else if (action === "mousedown") {
+      let e = new MouseEvent("mousedown", {
+        view: window,
+        bubbles: true,
+        cancelable: true,
+        clientX: x,
+        clientY: y
+      });
+      document.elementFromPoint(x, y).dispatchEvent(e);
+    } else if (action === "mouseup") {
+      let e = new MouseEvent("mouseup", {
+        view: window,
+        bubbles: true,
+        cancelable: true,
+        clientX: x,
+        clientY: y
+      });
+      document.elementFromPoint(x, y).dispatchEvent(e);
+    }
+//    console.log("ACTION", action, x, y)
     render();
   }
 
@@ -84,9 +119,12 @@ async function main() {
   server.cast("named", {"named": "cast", from: Actors.address()});
 
   while (true) {
-    let [pat, msg] = await Actors.recv("add");
-    console.log("CHILD GOT MSG", pat, msg);
-    controller.add(msg);
+    let [pat, msg] = await Actors.recv(["add", "action"]);
+    if (pat === "add") {
+      controller.add(msg);
+    } else if (pat === "action") {
+      controller.action(msg);
+    }
   }
 }
 

@@ -13,6 +13,8 @@ const actions = [
 ];
 
 let child = null;
+let offsetX = 0;
+let offsetY = 0;
 
 class ImagePicker extends React.Component {
   onClick(x, e) {
@@ -131,10 +133,10 @@ class Button extends React.Component {
     return <span style={{
       display: "inline-block",
       boxSizing: "border-box",
-      width: "32px",
-      height: "32px",
+      width: "36px",
+      height: "36px",
       fontSize: "32px",
-      lineHeight: "38px",
+      lineHeight: "40px",
       verticalAlign: "middle",
       textAlign: "center",
       cursor: "pointer",
@@ -153,8 +155,8 @@ class Toolbar extends React.Component {
       animating: false,
       originX: 0,
       originY: 0,
-      offsetX: 0,
-      offsetY: 0
+      offsetX: offsetX,
+      offsetY: offsetY
     };
   }
 
@@ -193,6 +195,8 @@ class Toolbar extends React.Component {
 
   onMouseUpTitleBar(e) {
     this.setState({animating: false});
+    offsetX = this.state.offsetX;
+    offsetY = this.state.offsetY;
     console.log("MOUSEUP", e);
     e.preventDefault();
     e.stopPropagation();
@@ -209,9 +213,10 @@ class Toolbar extends React.Component {
       position: "absolute",
       right: `${ - this.state.offsetX }px`,
       top: `${ this.state.offsetY }px`,
-      width: "66px",
+      width: "74px",
       boxSizing: "border-box",
-      border: "1px solid #cdcdcd"
+      border: "1px solid #ababab",
+      backgroundColor: "#efefef"
     }}>
       <div onMouseDown={ this.onMouseDownTitleBar.bind(this) }
         onMouseMove={ this.onMouseMoveTitleBar.bind(this) }
@@ -219,8 +224,8 @@ class Toolbar extends React.Component {
         onClick={ this.onClickTitleBar.bind(this) }
         style={{
           boxSizing: "border-box",
-          borderBottom: "1px solid #cdcdcd",
-          backgroundColor: "#efefef",
+          borderBottom: "1px solid #ababab",
+          backgroundColor: "#cdcdcd",
           height: "32px",
           width: "100%",
           cursor: "move"
@@ -236,8 +241,9 @@ class Editor extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      cursor: "text",
-      action: "text"
+      cursor: "pointer",
+      action: "browse",
+      mousedown: false
     }
   }
 
@@ -257,10 +263,34 @@ class Editor extends React.Component {
     const x = e.clientX;
     const y = e.clientY;
 
-    this.setState({editing:
-      {type: this.state.action, state: this.state.action, x: x, y: y}
-    });
-    render();
+    if (this.state.action === "text" || this.state.action === "image" || this.state.action === "button") {
+      this.setState({editing:
+        {type: this.state.action, state: this.state.action, x: x, y: y}
+      });
+      render();
+    } else {
+      this.props.child.cast("action", {action: this.state.action, x, y});
+    }
+  }
+
+  onMouseDown(e) {
+    if (this.state.action === "browse" || this.state.action === "move") {
+      this.setState({mousedown: true});
+      this.props.child.cast("action", {action: "mousedown", x: e.clientX, y: e.clientY});
+    }
+  }
+
+  onMouseMove(e) {
+    if (this.state.mousedown) {
+      this.props.child.cast("action", {action: "mousemove", x: e.clientX, y: e.clientY});
+    }
+  }
+
+  onMouseUp(e) {
+    if (this.state.mousedown) {
+      this.setState({mousedown: false});
+      this.props.child.cast("action", {action: "mouseup", x: e.clientX, y: e.clientY});
+    }
   }
 
   commit(entity) {
@@ -330,6 +360,18 @@ class Editor extends React.Component {
             </div>
           </Editing>
         </div>;
+      } else if (editing.type === "button") {
+        editor = <div style={{
+          fontSize: "12pt",
+          fontFamily: "serif",
+          position: "absolute",
+          left: `${ editing.x - 20 }px`,
+          top: `${ editing.y - 50 }px`
+        }}>
+          <Editing
+            help="Enter button label"
+            commit={ this.commit.bind(this) } />
+        </div>;
       }
       editor = <div>
         { editor }
@@ -342,7 +384,12 @@ class Editor extends React.Component {
         setCursor={ this.setCursor.bind(this) }/>;
     }
 
-    return <div onClick={ this.onClick.bind(this) } style={{
+    return <div
+      onMouseDown={ this.onMouseDown.bind(this) }
+      onMouseMove={ this.onMouseMove.bind(this) }
+      onMouseUp={ this.onMouseUp.bind(this) }
+      onClick={ this.onClick.bind(this) }
+      style={{
       position: "absolute",
       top: "0",
       left: "0",
