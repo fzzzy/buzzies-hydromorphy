@@ -70,7 +70,7 @@ class Entity extends React.Component {
   }
 
   onMouseMove(e) {
-    if (state === "move") {
+    if (state === "move" && moving === this.props.entity) {
       e.preventDefault();
       e.stopPropagation();
       let deltaX = this.state.prevX - e.clientX;
