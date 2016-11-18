@@ -106,7 +106,9 @@ class Editing extends React.Component {
         border: "1px solid black",
         padding: "6px"
       }} onSubmit={ this.onSubmit.bind(this) }>
-        <div>
+        <div style={{
+          marginBottom: "12px"
+        }}>
           { this.props.help }
         </div>
         <input ref={ (e) => { this.editor = e; } }
@@ -131,7 +133,7 @@ class SimpleEditor extends React.Component {
       fontFamily: "serif",
       position: "absolute",
       left: `${ this.props.editing.x - 20 }px`,
-      top: `${ this.props.editing.y - 50 }px`
+      top: `${ this.props.editing.y - 62 }px`
     }}>
       <Editing help={ this.props.help } commit={ this.props.commit } />
     </div>;
