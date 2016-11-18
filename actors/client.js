@@ -196,7 +196,6 @@ class Toolbar extends React.Component {
   }
 
   onMouseDownTitleBar(e) {
-    console.log("MOUSEDOWN", e.clientX, e.clientY);
     this.setState({animating: true, originX: e.clientX - this.state.offsetX, originY: e.clientY - this.state.offsetY});
     e.preventDefault();
     e.stopPropagation();
@@ -214,13 +213,11 @@ class Toolbar extends React.Component {
     this.setState({animating: false});
     offsetX = this.state.offsetX;
     offsetY = this.state.offsetY;
-    console.log("MOUSEUP", e);
     e.preventDefault();
     e.stopPropagation();
   }
 
   onClickTitleBar(e) {
-    console.log("ONCLICKTB");
     e.preventDefault();
     e.stopPropagation();
   }
