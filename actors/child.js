@@ -188,11 +188,19 @@ class Controller {
       state = "browse";
       //console.log("BROWSE", x, y);
       let e = makeEvent(type, x, y);
-      document.elementFromPoint(x, y).dispatchEvent(e);
+      let el = document.elementFromPoint(x, y);
+      if (el !== document.documentElement) {
+        el.dispatchEvent(e);
+      }
     } else if (action === "move") {
       state = "move";
       let e = makeEvent(type, x, y);
-      document.elementFromPoint(x, y).dispatchEvent(e);
+      let el = document.elementFromPoint(x, y);
+      if (el === document.documentElement) {
+        this.deselected();
+      } else {
+        el.dispatchEvent(e);
+      }
     }
 //    console.log("ACTION", action, x, y)
     render();
