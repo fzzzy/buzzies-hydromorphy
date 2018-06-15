@@ -1,0 +1,4 @@
+selenium
+eventlet
+flask
+flask_socketio
